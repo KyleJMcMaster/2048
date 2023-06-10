@@ -68,6 +68,7 @@ class Board:
         # returns a board object with the same board configuration
         b = Board(init=False)
         b.values = self.values.copy()
+        b.score = self.score
         return b
 
     def move(self,move: int) -> bool:

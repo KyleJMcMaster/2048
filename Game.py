@@ -23,20 +23,26 @@ class Game:
     def play_game(self):
 
         self.display.displayBoard(self.__board)
+        turn = 0
+        times = []
         gameover = False
 
         while not gameover:
-            user_input = self.input.getInput(self.get_board_copy())
-
+            turn += 1
             t = time.time()
+            user_input = self.input.getInput(self.get_board_copy())
+            t = time.time() - t
+            times.append(t)
+            print(t)
             if self.__board.move(user_input):
                 self.__board.add_random_square()
-            print(time.time()-t)
+
             self.display.displayBoard(self.__board)
             if not self.__board.get_legal_moves():
                 gameover = True
 
-
-
+        self.display.displayBoard(self.__board)
+        for i in range(len(times)):
+            print("turn "+str(i+1)+" - "+str(times[i]))
 
 
