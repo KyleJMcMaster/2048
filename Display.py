@@ -88,10 +88,11 @@ class TextDisplay(Display):
             2: "#EEE4DA",
             0: "#3e403f"
         }
-
+        print("score: %d" % (board.get_score()))
         for i in range(len(board.values)):
             tile = board.values[i]
             print(colr.color(f"{tile}\t".expandtabs(6), back=tile_colours[tile], fore="000000"),
                   end=" ")
             if i % 4 == 3:
                 print("\n")
+
