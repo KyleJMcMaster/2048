@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from Board import Board
+import random
 
 
 class Input(ABC):
@@ -32,14 +33,17 @@ class TextInput(Input):
         return valid_inputs[user_input]
 
 
+class RandomAI(Input):
+
+    def getInput(self, board: Board) -> int:
+        return random.randint(0, 3)
+
 
 
 class AI(Input):
 
     def getInput(self, board:Board) -> int:
         pass
-
-
 
 
 
