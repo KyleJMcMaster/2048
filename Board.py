@@ -5,7 +5,7 @@
 
 import random
 from typing import List
-import time
+
 
 
 
@@ -161,25 +161,3 @@ class Board:
 
         return legal_moves
 
-
-
-
-
-
-
-
-'''
-b = Board()
-b.set_tile_value([3,7,11,15,2], [4,2,4,4,16])
-b.display()
-t = time.time()
-
-print(b.move(3))
-b.add_random_square()
-b.display()
-print(b.move(1))
-print(b.move(1))
-b.add_random_square()
-b.display()
-print(time.time()-t)
-'''
