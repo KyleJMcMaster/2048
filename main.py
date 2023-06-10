@@ -8,6 +8,6 @@ from AI import *
 if __name__ == '__main__':
 
     d = TextDisplay()
-    i = MinMaxAI()
+    i = TextInput()
     g = Game(display=d, input=i)
     g.play_game()
