@@ -26,7 +26,7 @@ class Game:
         gameover = False
 
         while not gameover:
-            user_input = self.input.getInput(self.__board)
+            user_input = self.input.getInput(self.get_board_copy())
 
             t = time.time()
             if self.__board.move(user_input):
