@@ -9,7 +9,7 @@ from Display import *
 from Input import *
 from numpy import ndarray
 import time
-
+import statistics
 
 class Game:
 
@@ -34,7 +34,7 @@ class Game:
             user_input = self.input.getInput(Board.get_copy(self.__board))
             t = time.time() - t
             times.append(t)
-            print(t)
+            # print(t)
             if Board.check_legal_move(self.__board, user_input):
                 self.__board = Board.move(self.__board, user_input)
                 self.__board = Board.add_random_square(self.__board)
@@ -44,7 +44,25 @@ class Game:
                 gameover = True
 
         self.display.displayBoard(self.__board)
-        for i in range(len(times)):
-            print("turn "+str(i+1)+" - "+str(times[i]))
+        # for i in range(len(times)):
+            # print("turn "+str(i+1)+" - "+str(times[i]))
+
+    def report_statistics(self, num_games: int = 20):
+        scores = []
+        old_disp = self.display
+        self.display = ProgressDisplay(num_games)
+        print(f'--------------------------Playing Games--------------------------')
+        for i in range(num_games):
+            self.play_game()
+            scores.append(Board.get_score(self.__board))
+            self.__board = Board.build_board()
+            self.display.current_game += 1
+            self.display.turn = 0
+        print(f'{scores}', end='                                                                   \n')
+        print(f'Mean: {statistics.mean(scores)}\n')
+        print(f'stdev: {statistics.stdev(scores)}\n')
+        print(f'Max: {max(scores)}\n')
+        print(f'Min: {min(scores)}\n')
+
 
 

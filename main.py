@@ -8,6 +8,6 @@ from AI import *
 if __name__ == '__main__':
 
     d = TextDisplay()
-    i = TextInput()
+    i = RandomAI()
     g = Game(display=d, input=i)
-    g.play_game()
+    g.report_statistics(400)
