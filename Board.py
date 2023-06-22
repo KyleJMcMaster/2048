@@ -3,162 +3,159 @@
 # board will calculate score as well
 # board representation is a 16 int array from top left to bot right
 
+
+
 import random
+import time
 from typing import List
-
-
-
+from numpy import zeros, ndarray
 
 
 class Board:
 
-    def __init__(self, init: bool=True):
-        # initialize empty board
-        self.values = [0 for i in range(0, 16)]
-        self.score = 0
-        if init:
-            pos = random.sample(range(0, 15), 2)  # sample w/o replacement
-            val = random.choices([2, 4], weights=[0.9,0.1], k=2)
-            self.set_tile_value(pos, val)
+    @staticmethod
+    def build_board() -> ndarray:
+        arr = zeros(17, dtype=int)
+        pos = random.sample(range(0, 15), 2)
+        val = random.choices([2, 4], weights=[0.9, 0.1], k=2)
+        return Board.set_tile_value(arr, pos, val)
 
-    def set_tile_value(self, pos: List[int], val: List[int]):
+    @staticmethod
+    def set_tile_value(arr: ndarray, pos: List[int], val: List[int]) -> ndarray:
         # length of pos and val should agree
         # sets corresponding positions on board to specified values
         # TODO: restrict values in pos and val
         for i in range(len(pos)):
             p = pos[i]
-            self.values[p] = val[i]
+            arr[p] = val[i]
+        return arr
 
-    def check_legal_move(self, move: int) -> bool:
+    @staticmethod
+    def check_legal_move(arr: ndarray, move: int) -> bool:
         # checks if move is legal, returns true if legal
         # 0:r,1:l,2:u,3:d
         if move == 0:
             for i in range(16):
                 if i % 4 == 3: continue
-                if self.values[i] != 0 and (self.values[i+1] == 0 or self.values[i+1] == self.values[i]):
+                if arr[i] != 0 and (arr[i + 1] == 0 or arr[i + 1] == arr[i]):
                     return True
         if move == 1:
             for i in range(16):
                 if i % 4 == 0: continue
-                if self.values[i] != 0 and (self.values[i-1] == 0 or self.values[i-1] == self.values[i]):
+                if arr[i] != 0 and (arr[i - 1] == 0 or arr[i - 1] == arr[i]):
                     return True
         if move == 2:
             for i in range(16):
                 if i < 4: continue
-                if self.values[i] != 0 and (self.values[i-4] == 0 or self.values[i-4] == self.values[i]):
+                if arr[i] != 0 and (arr[i - 4] == 0 or arr[i - 4] == arr[i]):
                     return True
         if move == 3:
             for i in range(16):
                 if i > 11: continue
-                if self.values[i] != 0 and (self.values[i+4] == 0 or self.values[i+4] == self.values[i]):
+                if arr[i] != 0 and (arr[i + 4] == 0 or arr[i + 4] == arr[i]):
                     return True
         return False
 
-    def find_empty_squares(self) -> List[int]:
+    @staticmethod
+    def find_empty_squares(arr: ndarray) -> List[int]:
         empty_squares = []
         for i in range(16):
-            if self.values[i] == 0:
+            if arr[i] == 0:
                 empty_squares.append(i)
         return empty_squares
 
-    def get_score(self) -> int:
-        return self.score
+    @staticmethod
+    def get_score(arr: ndarray) -> int:
+        return arr[16]
 
-    def get_copy(self):
+    @staticmethod
+    def get_copy(arr: ndarray) -> ndarray:
         # returns a board object with the same board configuration
-        b = Board(init=False)
-        b.values = self.values.copy()
-        b.score = self.score
-        return b
+        return arr.copy()
 
-    def move(self,move: int) -> bool:
-        # plays move, returns true if any tile moves
+    @staticmethod
+    def move(arr: ndarray, move: int) -> ndarray:
+        # plays move, returns moved array
         # 0:r,1:l,2:u,3:d
-        tile_moved = False
         if move == 0:
-            for k in range(0,3):
-                for i in range(3-k,16-k,4):
-                    for j in range(1,4-k):
-                        if self.values[i] == 0 and self.values[i-j] != 0:
-                            self.values[i] = self.values[i-j]
-                            self.values[i-j] = 0
-                            tile_moved = True
-                        if self.values[i] != 0 and self.values[i-j] == self.values[i]:
-                            self.values[i] *= 2
-                            self.values[i-j] = 0
-                            self.score += self.values[i]
-                            tile_moved = True
+            for k in range(0, 3):
+                for i in range(3 - k, 16 - k, 4):
+                    for j in range(1, 4 - k):
+                        if arr[i] == 0 and arr[i - j] != 0:
+                            arr[i] = arr[i - j]
+                            arr[i - j] = 0
+                        if arr[i] != 0 and arr[i - j] == arr[i]:
+                            arr[i] *= 2
+                            arr[i - j] = 0
+                            arr[16] += arr[i]
                             break
-                        if self.values[i] != 0 and self.values[i-j] != 0 and self.values[i-j] != self.values[i]:
+                        if arr[i] != 0 and arr[i - j] != 0 and arr[i - j] != arr[i]:
                             break
         if move == 1:
-            for k in range(0,3):
-                for i in range(0+k,13+k,4):
-                    for j in range(1,4-k):
-                        if self.values[i] == 0 and self.values[i+j] != 0:
-                            self.values[i] = self.values[i+j]
-                            self.values[i+j] = 0
-                            tile_moved = True
-                        if self.values[i] != 0 and self.values[i+j] == self.values[i]:
-                            self.values[i] *= 2
-                            self.values[i+j] = 0
-                            self.score += self.values[i]
-                            tile_moved = True
+            for k in range(0, 3):
+                for i in range(0 + k, 13 + k, 4):
+                    for j in range(1, 4 - k):
+                        if arr[i] == 0 and arr[i + j] != 0:
+                            arr[i] = arr[i + j]
+                            arr[i + j] = 0
+                        if arr[i] != 0 and arr[i + j] == arr[i]:
+                            arr[i] *= 2
+                            arr[i + j] = 0
+                            arr[16] += arr[i]
                             break
-                        if self.values[i] != 0 and self.values[i+j] != 0 and self.values[i+j] != self.values[i]:
+                        if arr[i] != 0 and arr[i + j] != 0 and arr[i + j] != arr[i]:
                             break
         if move == 2:
-            for k in range(0,3):
-                for i in range(0+4*k,4+4*k):
-                    for j in range(1,4-k):
-                        if self.values[i] == 0 and self.values[i+j*4] != 0:
-                            self.values[i] = self.values[i+j*4]
-                            self.values[i+j*4] = 0
-                            tile_moved = True
-                        if self.values[i] != 0 and self.values[i+j*4] == self.values[i]:
-                            self.values[i] *= 2
-                            self.values[i+j*4] = 0
-                            self.score += self.values[i]
-                            tile_moved = True
+            for k in range(0, 3):
+                for i in range(0 + 4 * k, 4 + 4 * k):
+                    for j in range(1, 4 - k):
+                        if arr[i] == 0 and arr[i + j * 4] != 0:
+                            arr[i] = arr[i + j * 4]
+                            arr[i + j * 4] = 0
+                        if arr[i] != 0 and arr[i + j * 4] == arr[i]:
+                            arr[i] *= 2
+                            arr[i + j * 4] = 0
+                            arr[16] += arr[i]
                             break
-                        if self.values[i] != 0 and self.values[i+j*4] != 0 and self.values[i+j*4] != self.values[i]:
+                        if arr[i] != 0 and arr[i + j * 4] != 0 and arr[i + j * 4] != arr[i]:
                             break
         if move == 3:
-            for k in range(0,3):
-                for i in range(12-4*k,16-4*k):
-                    for j in range(1,4-k):
-                        if self.values[i] == 0 and self.values[i-j*4] != 0:
-                            self.values[i] = self.values[i-j*4]
-                            self.values[i-j*4] = 0
-                            tile_moved = True
-                        if self.values[i] != 0 and self.values[i-j*4] == self.values[i]:
-                            self.values[i] *= 2
-                            self.values[i-j*4] = 0
-                            self.score += self.values[i]
-                            tile_moved = True
+            for k in range(0, 3):
+                for i in range(12 - 4 * k, 16 - 4 * k):
+                    for j in range(1, 4 - k):
+                        if arr[i] == 0 and arr[i - j * 4] != 0:
+                            arr[i] = arr[i - j * 4]
+                            arr[i - j * 4] = 0
+                        if arr[i] != 0 and arr[i - j * 4] == arr[i]:
+                            arr[i] *= 2
+                            arr[i - j * 4] = 0
+                            arr[16] += arr[i]
                             break
-                        if self.values[i] != 0 and self.values[i-j*4] != 0 and self.values[i-j*4] != self.values[i]:
+                        if arr[i] != 0 and arr[i - j * 4] != 0 and arr[i - j * 4] != arr[i]:
                             break
-        return tile_moved
+        return arr.copy()
 
-    def display(self):
-        print(self.values[0:4])
-        print(self.values[4:8])
-        print(self.values[8:12])
-        print(self.values[12:16])
+    @staticmethod
+    def display(arr: ndarray):
+        print(arr[0:4])
+        print(arr[4:8])
+        print(arr[8:12])
+        print(arr[12:16])
 
-    def add_random_square(self):
+    @staticmethod
+    def add_random_square(arr: ndarray) -> ndarray:
         # add random tile in empty square
-        pos = random.sample(self.find_empty_squares(),1)
-        val = random.choices([2,4],weights=[0.9,0.1],k=1)
-        self.set_tile_value(pos, val)
+        pos = random.sample(Board.find_empty_squares(arr), 1)
+        val = random.choices([2, 4], weights=[0.9, 0.1], k=1)
+        Board.set_tile_value(arr, pos, val)
+        return arr
 
-    def get_legal_moves(self) -> List[int]:
+    @staticmethod
+    def get_legal_moves(arr: ndarray) -> List[int]:
         # returns a list of legal moves to play
         legal_moves = []
         for i in range(4):
-            if self.check_legal_move(i):
+            if Board.check_legal_move(arr, i):
                 legal_moves.append(i)
 
         return legal_moves
-

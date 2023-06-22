@@ -2,20 +2,21 @@
 
 from abc import ABC, abstractmethod
 from Board import Board
+from numpy import ndarray
 import random
 
 
 class Input(ABC):
 
     @abstractmethod
-    def getInput(self, board:Board) -> int:
+    def getInput(self, board: ndarray) -> int:
         pass
 
 
 
 class TextInput(Input):
 
-    def getInput(self, board:Board) -> int:
+    def getInput(self, board: ndarray) -> int:
         valid_inputs = {
             'd': 0,
             'a': 1,
@@ -35,14 +36,14 @@ class TextInput(Input):
 
 class RandomAI(Input):
 
-    def getInput(self, board: Board) -> int:
+    def getInput(self, board: ndarray) -> int:
         return random.randint(0, 3)
 
 
 
 class AI(Input):
 
-    def getInput(self, board:Board) -> int:
+    def getInput(self, board:ndarray) -> int:
         pass
 
 

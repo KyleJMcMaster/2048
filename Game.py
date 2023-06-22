@@ -4,9 +4,10 @@
 # AIs can only interface with up,down,left,right movements, this will prevent possible
 # cheating
 
-from Board import Board
+import Board
 from Display import *
 from Input import *
+from numpy import ndarray
 import time
 
 
@@ -15,10 +16,10 @@ class Game:
     def __init__(self, display: Display, input: Input):
         self.display = display
         self.input = input
-        self.__board = Board()
+        self.__board = Board.build_board()
 
-    def get_board_copy(self) -> Board:
-        return self.__board.get_copy()
+    def get_board_copy(self) -> ndarray:
+        return Board.get_copy(self.__board)
 
     def play_game(self):
 
@@ -30,15 +31,16 @@ class Game:
         while not gameover:
             turn += 1
             t = time.time()
-            user_input = self.input.getInput(self.get_board_copy())
+            user_input = self.input.getInput(Board.get_copy(self.__board))
             t = time.time() - t
             times.append(t)
             print(t)
-            if self.__board.move(user_input):
-                self.__board.add_random_square()
+            if Board.check_legal_move(self.__board, user_input):
+                self.__board = Board.move(self.__board, user_input)
+                self.__board = Board.add_random_square(self.__board)
 
             self.display.displayBoard(self.__board)
-            if not self.__board.get_legal_moves():
+            if not Board.get_legal_moves(self.__board):
                 gameover = True
 
         self.display.displayBoard(self.__board)

@@ -5,6 +5,7 @@
 from abc import ABC, abstractmethod
 import tkinter as tk
 from Board import Board
+from numpy import ndarray
 import colr
 
 
@@ -15,7 +16,7 @@ class Display(ABC):
         pass
 
     @abstractmethod
-    def displayBoard(self, board: Board):
+    def displayBoard(self, board: ndarray):
         pass
 
 
@@ -32,7 +33,7 @@ class WindowDisplay(Display):
             self.tiles[i] = tk.Canvas(self.window, width=100, height=100)
             self.tiles[i].grid(row=int(i / 4) + 1, column=(i % 4) + 1)
 
-    def displayBoard(self, board: Board):
+    def displayBoard(self, board: ndarray):
         tile_colours = {
             65536: "569BE0",
             32768: "#6BAED5",
@@ -53,8 +54,8 @@ class WindowDisplay(Display):
             0: "#CCC0B3"
         }
 
-        for i in range(len(board.values)):
-            tile = board.values[i]
+        for i in range(16):
+            tile = board[i]
             if tile not in tile_colours:
                 colour = "#2E2C26"
             else:
@@ -63,7 +64,7 @@ class WindowDisplay(Display):
             self.tiles[i].create_rectangle(10, 10, 90, 90, fill=colour)
             self.tiles[i].create_text(50, 50, text=str(tile) if tile != 0 else '', fill=text_colour,
                                       font=("Helvetica", 24))
-        self.score_label.config(text="Score: " + str(board.get_score()))
+        self.score_label.config(text="Score: " + str(Board.get_score(board)))
         self.window.update_idletasks()
         self.window.update()
 
@@ -73,7 +74,7 @@ class TextDisplay(Display):
     def __init__(self):
         pass
 
-    def displayBoard(self, board: Board):
+    def displayBoard(self, board: ndarray):
         tile_colours = {
             2048: "EDC22E",
             1024: "#EDC23F",
@@ -88,9 +89,9 @@ class TextDisplay(Display):
             2: "#EEE4DA",
             0: "#3e403f"
         }
-        print("score: %d" % (board.get_score()))
-        for i in range(len(board.values)):
-            tile = board.values[i]
+        print("score: %d" % (Board.get_score(board)))
+        for i in range(16):
+            tile = board[i]
             print(colr.color(f"{tile}\t".expandtabs(6), back=tile_colours[tile], fore="000000"),
                   end=" ")
             if i % 4 == 3:

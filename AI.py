@@ -2,17 +2,15 @@ from Board import Board
 from Input import Input
 from typing import List
 from itertools import chain
-
+from numpy import ndarray
 
 
 class MinMaxAI(Input):
 
-    def __init__(self, depth: int = 100):
+    def __init__(self, depth: int = 2):
         self.depth = depth
-        self.selected_move_tree = []
 
-
-    def getInput(self, board: Board) -> int:
+    def getInput(self, board: ndarray) -> int:
         # method returns move to play based on a given board state
         # TODO: optimizations to improve pruning, save already calculated values
         root_state = GameState(board)
@@ -20,7 +18,7 @@ class MinMaxAI(Input):
 
         root_state.generate_tree()
         current_children = root_state.children
-        while current_depth < self.depth:
+        while len(current_children) < 50000:
             new_children = []
             print(len(current_children))
             for child in current_children:
@@ -28,6 +26,7 @@ class MinMaxAI(Input):
             current_children = list(chain.from_iterable(new_children))
             current_depth += 1
 
+        print(current_depth)
         mins = [4000000] * 4
         for child in current_children:
             score = child.get_score()
@@ -47,8 +46,8 @@ class MinMaxAI(Input):
 
 class GameState:
 
-    def __init__(self, board:Board, move_made: int=-1, parent_state=None,first_child:bool=False):
-        self.board = board.get_copy()
+    def __init__(self, board: ndarray, move_made: int=-1, parent_state=None,first_child:bool=False):
+        self.board = Board.get_copy(board)
         self.parent = parent_state
         if first_child or parent_state is None:
             self.move_made = move_made
@@ -60,34 +59,25 @@ class GameState:
     def generate_tree(self) -> List:
         # expands game tree by generating all possible game states from this position
         states = []
-        legal_moves = self.board.get_legal_moves()
+        legal_moves = Board.get_legal_moves(self.board)
         for move in legal_moves:
-            board = self.board.get_copy()
-            board.move(move)
-            empty_squares = board.find_empty_squares()
+            board = Board.get_copy(self.board)
+            Board.move(board, move)
+            empty_squares = Board.find_empty_squares(board)
             for empty_square in empty_squares:
-                b = board.get_copy()
-                b.set_tile_value([empty_square], [2])
+                b = Board.get_copy(board)
+                Board.set_tile_value(b,[empty_square], [2])
                 states.append(GameState(b, move,  self, self.parent is None))
-                b.set_tile_value([empty_square], [4])
+                Board.set_tile_value(b,[empty_square], [4])
                 states.append(GameState(b, move, self, self.parent is None))
         self.children = states.copy()
         return states
 
     def print_tree(self):
-        self.board.display()
+        Board.display(self.board)
         for child in self.children:
             print(child.move_made)
             child.board.display()
 
     def get_score(self) -> int:
-        return self.board.get_score()
-
-'''
-b = Board(init=False)
-b.set_tile_value([2,3,4,5,6,7,8,9,10,11,12,13,14,15],[4,8,16,32,4,4,4,8,8,8,2,2,4,4,4])
-g = GameState(b)
-
-g.generate_tree()
-g.print_tree()
-'''
+        return Board.get_score(self.board)
