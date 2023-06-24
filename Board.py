@@ -159,3 +159,15 @@ class Board:
                 legal_moves.append(i)
 
         return legal_moves
+
+    @staticmethod
+    def play_random_game(board: ndarray) -> int:
+        # plays a random game until completion and returns the resulting score
+        legal_moves = Board.get_legal_moves(board)
+        while len(legal_moves) > 0:
+            move = random.choices(legal_moves)[0]
+            board = Board.move(board, move)
+            board = Board.add_random_square(board)
+            legal_moves = Board.get_legal_moves(board)
+
+        return Board.get_score(board)

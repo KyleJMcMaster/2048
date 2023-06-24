@@ -100,7 +100,7 @@ class TextDisplay(Display):
 
 class ProgressDisplay(Display):
 
-    def __init__(self, num_games, max_turns: int = 200):
+    def __init__(self, num_games, max_turns: int = 300):
         self.max_turns = max_turns
         self.num_games = num_games
         self.turn = 0
@@ -111,7 +111,7 @@ class ProgressDisplay(Display):
             self.max_turns += 1
 
         ProgressDisplay.printProgressBar(self.turn, self.max_turns, suffix=f'({self.current_game}/{self.num_games}) '
-                                                                            f'Games Completed')
+                                                                            f'Games Completed    ')
 
     @staticmethod
     def printProgressBar(iteration, total, prefix='Progress:', suffix='Complete', decimals=1, length=100, fill='█', printEnd="\r"):

@@ -9,7 +9,7 @@ from Display import *
 from Input import *
 from numpy import ndarray
 import time
-import statistics
+
 
 class Game:
 
@@ -21,7 +21,7 @@ class Game:
     def get_board_copy(self) -> ndarray:
         return Board.get_copy(self.__board)
 
-    def play_game(self):
+    def play_game(self) -> int:
 
         self.display.displayBoard(self.__board)
         turn = 0
@@ -44,25 +44,9 @@ class Game:
                 gameover = True
 
         self.display.displayBoard(self.__board)
-        # for i in range(len(times)):
-            # print("turn "+str(i+1)+" - "+str(times[i]))
+        return Board.get_score(self.__board)
 
-    def report_statistics(self, num_games: int = 20):
-        scores = []
-        old_disp = self.display
-        self.display = ProgressDisplay(num_games)
-        print(f'--------------------------Playing Games--------------------------')
-        for i in range(num_games):
-            self.play_game()
-            scores.append(Board.get_score(self.__board))
-            self.__board = Board.build_board()
-            self.display.current_game += 1
-            self.display.turn = 0
-        print(f'{scores}', end='                                                                   \n')
-        print(f'Mean: {statistics.mean(scores)}\n')
-        print(f'stdev: {statistics.stdev(scores)}\n')
-        print(f'Max: {max(scores)}\n')
-        print(f'Min: {min(scores)}\n')
+
 
 
 

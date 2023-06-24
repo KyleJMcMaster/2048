@@ -4,10 +4,10 @@ from Input import *
 from Game import *
 from Board import *
 from AI import *
+from Reporter import *
 
 if __name__ == '__main__':
 
-    d = TextDisplay()
     i = RandomAI()
-    g = Game(display=d, input=i)
-    g.report_statistics(400)
+    r = TextReporter(i, num_games=20, multithreaded=False)
+    r.report_statistics()

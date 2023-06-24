@@ -7,8 +7,9 @@ from numpy import ndarray
 
 class MinMaxAI(Input):
 
-    def __init__(self, depth: int = 2):
-        self.depth = depth
+    def __init__(self):
+        pass
+
 
     def getInput(self, board: ndarray) -> int:
         # method returns move to play based on a given board state
@@ -20,29 +21,60 @@ class MinMaxAI(Input):
         current_children = root_state.children
         while len(current_children) < 50000:
             new_children = []
-            print(len(current_children))
+            # print(len(current_children))
             for child in current_children:
                 new_children.append(child.generate_tree())
             current_children = list(chain.from_iterable(new_children))
             current_depth += 1
 
-        print(current_depth)
+        # print(current_depth)
         mins = [4000000] * 4
         for child in current_children:
-            score = child.get_score()
+            score = child.get_board_score()
             if score < mins[child.move_made]:
                 mins[child.move_made] = score
-        print(mins)
+        # print(mins)
         max_move_score = -1
         max_move = -1
         for i in range(4):
             if mins[i] != 4000000 and mins[i] > max_move_score and max_move_score:
                 max_move_score = mins[i]
                 max_move = i
-        print(max_move_score)
-        print(max_move)
+        # print(max_move_score)
+        # print(max_move)
         return max_move
-        # TODO: always getting assinged 0, what's going on
+
+
+class MinMaxAI_v2(Input):
+
+    def __init__(self, num_games: int = 20):
+        self.num_games = num_games
+
+    def getInput(self, board: ndarray) -> int:
+        # method returns move to play based on a given board state
+        scores = []
+        root_state = GameState(board)
+
+        root_state.generate_tree()
+        children = root_state.children
+
+        mins = [4000000] * 4
+        for child in children:
+            score = child.get_avg_score(self.num_games)
+            if score < mins[child.move_made]:
+                mins[child.move_made] = score
+
+        #print(mins)
+        max_move_score = -1
+        max_move = -1
+        for i in range(4):
+            if mins[i] != 4000000 and mins[i] > max_move_score and max_move_score:
+                max_move_score = mins[i]
+                max_move = i
+        #print(max_move_score)
+        #print(max_move)
+        return max_move
+
 
 class GameState:
 
@@ -70,7 +102,7 @@ class GameState:
                 states.append(GameState(b, move,  self, self.parent is None))
                 Board.set_tile_value(b,[empty_square], [4])
                 states.append(GameState(b, move, self, self.parent is None))
-        self.children = states.copy()
+        self.children = states
         return states
 
     def print_tree(self):
@@ -79,5 +111,16 @@ class GameState:
             print(child.move_made)
             child.board.display()
 
-    def get_score(self) -> int:
+    def get_board_score(self) -> int:
         return Board.get_score(self.board)
+
+    def play_random_games(self, num_games) -> List[int]:
+        scores = []
+        for i in range(num_games):
+            board = Board.get_copy(self.board)
+            scores.append(Board.play_random_game(board))
+
+        return scores
+
+    def get_avg_score(self, num_games) -> float:
+        return sum(self.play_random_games(num_games))/num_games
