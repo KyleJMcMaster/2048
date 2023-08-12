@@ -1,56 +1,52 @@
+import pickle
 import multiprocessing
-from abc import ABC, abstractmethod
-from Game import *
 import statistics
 import time
-from Input import *
+from abc import ABC
 from typing import List
+
+from datetime import datetime
+from Encoder import Encoder, PickleEncoder
+from AI import *
+from Game import Game
+from Input import Input, TextInput
+from Display import NoneDisplay
+
 
 class Reporter(ABC):
 
     @abstractmethod
-    def __init__(self, input: Input, num_games: int = 20, multithreaded: bool = False):
+    def __init__(self, AI_: AI):
         pass
 
     @abstractmethod
-    def report_statistics(self):
+    def generate_report(self, num_games: int):
         pass
 
 
-class TextReporter(Reporter):
+class FileReporter(Reporter):
+    # Plays n games and saves gameinfo objects as a binary file for efficient storage
 
-    def __init__(self, input: Input, num_games: int = 20, multithreaded: bool = False):
-        self.input = input
-        self.num_games = num_games
-        self.multithreaded = multithreaded
-
-    def report_statistics(self):
-        scores = []
-        display = ProgressDisplay(self.num_games)
-        t = time.time()
-        print(f'--------------------------Playing Games--------------------------')
-        if self.multithreaded:
-            with multiprocessing.Pool(min(self.num_games, 100)) as pool:
-                args = [(display, self.input, i, scores) for i in range(self.num_games)]
-                for result in pool.starmap(TextReporter.play_concurrent_game, args):
-                    scores.append(result)
-
+    def __init__(self, AI_: AI, encoder: Encoder, filename: str = None):
+        self.AI_ = AI_
+        self.display = NoneDisplay()
+        self.encoder = encoder
+        if filename is None:
+            self.filename = str(datetime.now()) + ".txt"
         else:
-            for i in range(self.num_games):
-                g = Game(display, self.input)
-                scores.append(g.play_game())
-                display.current_game += 1
-                display.turn = 0
-        t = time.time() - t
-        print(f'{t} seconds')
-        print(f'{scores}', end='                                                                   \n')
-        print(f'Mean: {statistics.mean(scores)}\n')
-        print(f'stdev: {statistics.stdev(scores)}\n')
-        print(f'Max: {max(scores)}\n')
-        print(f'Min: {min(scores)}\n')
-    @staticmethod
-    def play_concurrent_game(display:Display, input: Input, game_num:int, scores: List[int]):
-        g = Game(display, input)
-        return g.play_game()
+            self.filename = filename
+
+    def generate_report(self, num_games: int = 5):
+        t = time.perf_counter()
+        print(f"Saving to {self.filename}")
+        for i in range(num_games):
+            g = Game(display=self.display, input=self.AI_ )
+            info = g.play_game()
+            self.encoder.encode(gameinfo=info, filename=self.filename)
+            print(f"Game number {i+1} completed", end='\r')
+        t = time.perf_counter() - t
+        print(f"All games completed in {t} seconds")
+
+
 
 

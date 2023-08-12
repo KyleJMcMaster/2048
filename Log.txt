@@ -1,0 +1,22 @@
+Refactored noah's code
+designed to allow seamless changes between types of displays and inputs
+also designed to put responsibility for good board states in hands of board class (board handles all board actions, game uses board actions)
+Designed minmax algo
+problem: minmax algo takes too long, states blow up too quickly
+Solution: generate all states of a depth of 1, play n games to completion from these states
+minmax the average scores
+
+first game, smashing record (23-06-23) 16140
+
+added multi threading in reporter class
+improved randomAI 10000 game performance from 125.42 to 32 seconds
+improved MinMax_v2 10 game performance from 10520 to 2837 seconds
+
+added multitreading to playing n random games in Gamestate class
+improved first couple move speed from ~20sec to ~6sec, allowed increase of number of random games from 50 to 100 (200+ is possible but not explored)
+
+JULY 16th
+
+Continued refacotring code (started on July 15th)
+Added TextRepresentation class for Board class
+Represenation is ~3x smaller than the board class (comparing board_string vs. board array)

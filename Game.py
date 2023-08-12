@@ -7,44 +7,54 @@
 import Board
 from Display import *
 from Input import *
-from numpy import ndarray
+from typing import Dict
 import time
-
+from GameInformation import *
 
 class Game:
 
-    def __init__(self, display: Display, input: Input):
-        self.display = display
-        self.input = input
-        self.__board = Board.build_board()
+    def __init__(self, display: Display = None, input: Input = None):
+        if display is None:
+            self.display = TextDisplay()
+        else:
+            self.display = display
 
-    def get_board_copy(self) -> ndarray:
-        return Board.get_copy(self.__board)
+        if input is None:
+            self.input = TextInput()
+        else:
+            self.input = input
+        self.__board = Board()
 
-    def play_game(self) -> int:
 
-        self.display.displayBoard(self.__board)
-        turn = 0
-        times = []
+    def get_board(self) -> Board:
+        return self.__board.copy()
+
+    def play_game(self) -> GameInformation:
+
+        self.display.display_board(self.__board)
+        turns = []
+        turn_num = 0
         gameover = False
+        game_time = time.perf_counter()
 
         while not gameover:
-            turn += 1
-            t = time.time()
-            user_input = self.input.getInput(Board.get_copy(self.__board))
-            t = time.time() - t
-            times.append(t)
+            turn_num += 1
+            turn_time = time.perf_counter()
+            user_input = self.input.get_input(self.__board.copy())
+            turn_time = time.perf_counter() - turn_time
+
             # print(t)
-            if Board.check_legal_move(self.__board, user_input):
-                self.__board = Board.move(self.__board, user_input)
-                self.__board = Board.add_random_square(self.__board)
-
-            self.display.displayBoard(self.__board)
-            if not Board.get_legal_moves(self.__board):
+            if self.__board.check_legal_move(user_input):
+                self.__board.move(user_input).set_random_square()
+                turn = GameInformation.Turn(time=turn_time, move=user_input, board=Board.TextRepresentation.get_text_rep(self.__board))
+                turns.append(turn)
+                self.display.display_board(self.__board)
+            if not self.__board.get_legal_moves():
                 gameover = True
-
-        self.display.displayBoard(self.__board)
-        return Board.get_score(self.__board)
+        game_time = time.perf_counter()-game_time
+        self.display.display_board(self.__board)
+        info = GameInformation(num_turns=turn_num, turns=turns, time=game_time, score=self.__board.get_score())
+        return info
 
 
 

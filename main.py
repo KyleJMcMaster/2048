@@ -5,9 +5,17 @@ from Game import *
 from Board import *
 from AI import *
 from Reporter import *
+from Decoder import PickleDecoder
+from GameReplay import GameReplay
+from Statistics import Statistics
 
 if __name__ == '__main__':
 
-    i = RandomAI()
-    r = TextReporter(i, num_games=20, multithreaded=False)
-    r.report_statistics()
+
+    r = FileReporter(RandomAI(),PickleEncoder)
+    r.generate_report(100)
+
+
+
+
+
